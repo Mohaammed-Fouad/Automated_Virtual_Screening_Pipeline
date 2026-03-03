@@ -569,17 +569,6 @@ def _tier3_grid(
 ) -> tuple[float, float, float] | None:
     """
     Geometric cavity detection via a 3-D occupancy grid and exterior flood-fill.
-
-    FIXES vs original:
-    ─────────────────
-    1. ``probe_expanded`` is now computed correctly when scipy is absent:
-       instead of ``probe_expanded = occupied`` (zero-radius probe → all
-       surface crevices flooded as exterior, leaving no cavity voxels), we
-       call ``_manual_dilate_3d``.
-    2. Scoring: ``vol^1.5 × burial^0.5 × sphericity`` rewards large AND
-       deep pockets while avoiding the quadratic bias that suppressed
-       partially-open kinase binding grooves.
-    3. Noise filter: clusters < ``MIN_CLUSTER_VOXELS`` voxels are discarded.
     """
     if not _NUMPY_AVAILABLE:
         log.warning("  [Tier 3] NumPy not available — cannot run grid detector.")
@@ -636,7 +625,6 @@ def _tier3_grid(
             probe_expanded = binary_dilation(probe_expanded, structure=struct)
         log.debug("  [Tier 3] Probe dilation via scipy.")
     except ImportError:
-        # FIX: use manual dilation instead of the broken fallback
         log.debug(
             "  [Tier 3] scipy not available — using manual 3-D dilation "
             "(slower but correct)."
@@ -724,9 +712,6 @@ def _tier3_grid(
         )
         return None
 
-    # ── FIX: improved scoring ──────────────────────────────────────────────
-    # score = vol^1.5 × burial^0.5 × sphericity
-    # sphericity = (π^(1/3) × (6V)^(2/3)) / A  — penalises elongated crevices
     def _score(cluster):
         volume = len(cluster)
         burial_sum = 0.0
