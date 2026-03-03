@@ -66,7 +66,7 @@ Column names and file paths are configured at the top of the script via global c
 ### Run the full pipeline
 
 ```bash
-python virtual_screening_fast.py
+python virtual_screening.py
 ```
 
 ### Re-score from existing docked SDF files (no re-docking)
@@ -74,14 +74,14 @@ python virtual_screening_fast.py
 Useful if docking completed successfully but result extraction failed:
 
 ```bash
-python virtual_screening_fast.py --recover
+python virtual_screening.py --recover
 ```
 
 ---
 
 ## Configuration
 
-Edit the constants at the top of `virtual_screening_fast.py`:
+Edit the constants at the top of `virtual_screening.py`:
 
 ```python
 INPUT_EXCEL            = "blind_set.xlsx"       # compound library
